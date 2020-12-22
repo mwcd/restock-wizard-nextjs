@@ -1,5 +1,6 @@
 import axios from 'axios'
 import cheerio from 'cheerio'
+import { formatWithValidation } from 'next/dist/next-server/lib/utils'
 import { AvailableGpus, GpuInfo, StoreGpuStock } from '../interfaces/interfaces'
 
 export async function getGpusInStock(): Promise<StoreGpuStock> {
@@ -20,23 +21,42 @@ export async function getGpusInStock(): Promise<StoreGpuStock> {
 }
 
 export async function getBestBuyGpus(): Promise<StoreGpuStock> {
-    const url3060Ti = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203060%20Ti'
-    const url3070 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203070'
-    const url3080 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203080'
-    const url3090 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203090'
-    const urlTitanRtx = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20Titan%20RTX'
-    const urlRx6800 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~AMD%20Radeon%20RX%206800'
-    const urlRx6800Xt = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~AMD%20Radeon%20RX%206800%20XT'
-    const urlRx6900Xt = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~AMD%20Radeon%20RX%206900%20XT'
+    const bestBuy3060Ti = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203060%20Ti'
+    const bestBuy3070 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203070'
+    const bestBuy3080 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203080'
+    const bestBuy3090 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203090'
+    const bestBuyTitanRtx = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20Titan%20RTX'
+    const bestBuyRx6800 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~AMD%20Radeon%20RX%206800'
+    const bestBuyRx6800Xt = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~AMD%20Radeon%20RX%206800%20XT'
+    const bestBuyRx6900Xt = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~AMD%20Radeon%20RX%206900%20XT'
 
-    const nvidia3060Tis = await getBestBuyGpu(url3060Ti)
-    const nvidia3070s = await getBestBuyGpu(url3070)
-    const nvidia3080s = await getBestBuyGpu(url3080)
-    const nvidia3090s = await getBestBuyGpu(url3090)
-    const NvidiaTitanRtxs = await getBestBuyGpu(urlTitanRtx)
-    const amdRx6800s = await getBestBuyGpu(urlRx6800)
-    const amdRx6800Xts = await getBestBuyGpu(urlRx6800Xt)
-    const amdRx6900Xts = await getBestBuyGpu(urlRx6900Xt)
+    let nvidia3060Tis = await getBestBuyGpu(bestBuy3060Ti)
+    let nvidia3070s = await getBestBuyGpu(bestBuy3070)
+    let nvidia3080s = await getBestBuyGpu(bestBuy3080)
+    let nvidia3090s = await getBestBuyGpu(bestBuy3090)
+    let NvidiaTitanRtxs = await getBestBuyGpu(bestBuyTitanRtx)
+    let amdRx6800s = await getBestBuyGpu(bestBuyRx6800)
+    let amdRx6800Xts = await getBestBuyGpu(bestBuyRx6800Xt)
+    let amdRx6900Xts = await getBestBuyGpu(bestBuyRx6900Xt)
+
+    const bhPhoto3060Ti = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3060-ti'
+    const bhPhoto3070 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3070'
+    const bhPhoto3080 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3080'
+    const bhPhoto3090 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3090'
+    // This is a search as there's no category
+    // TODO: Make sure search results are formatted the same as category results
+    const bhPhotoTitanRtx = 'https://www.bhphotovideo.com/c/search?Ntt=titanrtx&N=0&InitialSearch=yes&sts=ma'
+    const bhPhotoRx6800 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_amd-radeon-series_5012%3Aradeon-rx-6800'
+    const bhPhotoRx6800Xt = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_amd-radeon-series_5012%3Aradeon-rx-6800-xt'
+    // TODO: No 6900 XT - update once one exists
+
+    nvidia3060Tis.push(...(await getBhPhotoGpu(bhPhoto3060Ti)))
+    nvidia3070s.push(...(await getBhPhotoGpu(bhPhoto3070)))
+    nvidia3080s.push(...(await getBhPhotoGpu(bhPhoto3080)))
+    nvidia3090s.push(...(await getBhPhotoGpu(bhPhoto3090)))
+    NvidiaTitanRtxs.push(...(await getBhPhotoGpu(bhPhotoTitanRtx)))
+    amdRx6800s.push(...(await getBhPhotoGpu(bhPhotoRx6800)))
+    amdRx6800Xts.push(...(await getBhPhotoGpu(bhPhotoRx6800Xt)))
 
     const gpuStock: StoreGpuStock = {
         Nvidia3060Ti: nvidia3060Tis,
@@ -58,16 +78,19 @@ async function getBestBuyGpu(url: string): Promise<GpuInfo[]> {
     const $ = cheerio.load(data)
     let gpus: GpuInfo[] = new Array()
     $('.list-item.lv').each(function (index, element) {
-        const information = $(this).children('.right-column').children('.information')
+        const infoBlock = $(this).children('.right-column').children('.information')
         const priceBlock = $(this).children('.right-column').children('.price-block')
-        const link = information.find('.sku-header').children('a')
 
+        const link = infoBlock.find('.sku-header').children('a')
         const name = link.text()
-        const address = link.attr('href')
-        const price = priceBlock.find('.priceView-hero-price.priceView-customer-price').children('span').text()
+        const addressPrefix = 'https://www.bestbuy.com'
+        const address = addressPrefix + link.attr('href')
+
+        const price = priceBlock.find('.priceView-hero-price.priceView-customer-price')
+            .children('span').text()
         const itemStatus = priceBlock.find('.add-to-cart-button').text()
 
-        let gpu: GpuInfo = {
+        const gpu: GpuInfo = {
             name: name,
             address: address,
             price: parseInt(price),
@@ -75,6 +98,39 @@ async function getBestBuyGpu(url: string): Promise<GpuInfo[]> {
         }
         gpus.push(gpu)
     })
+    return gpus
+}
 
+async function getBhPhotoGpu(url: string): Promise<GpuInfo[]> {
+    const res = await axios.get(url)
+    const data = res.data
+    const $ = cheerio.load(data)
+    let gpus: GpuInfo[] = new Array()
+    $('.productInner_Rsut3wY9onGrX0CFpijlz').each(function (index, element) {
+        const infoBlock = $(this).children('.desc_1Tzf71-71iRGoSImRMVVzQ')
+        const priceBlock = $(this).children('.conversion_33niyTQpJvjf05ZdIol0Zn')
+
+        const link = infoBlock.find('.title_ip0F69brFR7q991bIVYh1')
+        const name = link.text()
+        const addressPrefix = 'https://www.bhphotovideo.com'
+        const address = addressPrefix + link.attr('href')
+
+        const priceDollars = priceBlock.find('.container_14EdEmSSsYmuetz3imKuAI')
+            .children('span').text().substring(1) // first char is $
+        const priceCents = priceBlock.find('.sup_16V7uLfWDd9kJVKs5bfwSx').text()
+        const price = Number(priceDollars + "." + priceCents)
+        priceBlock.filter('.notifyBtn_3xVC8mda-LbSgYs4mjp5NS buttonTheme_1mBX7Kocn_Oq_wzW6ri7s5 tertiary_3fLAKfyXQQMUL4ZSxgfZGx')
+        const itemStatusButton = priceBlock.find('.container_2SrtUKcYWGHRxMYB3ks_0q')
+            .find('button')
+        const inStock = (itemStatusButton.text() === 'Add to Cart')
+
+        const gpu: GpuInfo = {
+            name: name,
+            address: address,
+            price: price,
+            inStock: inStock
+        }
+        gpus.push(gpu)
+    })
     return gpus
 }
