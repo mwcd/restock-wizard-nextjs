@@ -2,7 +2,6 @@ import Layout from '../components/layout'
 import React from 'react'
 import { useTable } from 'react-table'
 import { GetStaticPropsResult, InferGetStaticPropsType } from 'next'
-import { AppProps } from 'next/dist/next-server/lib/router/router'
 import { getGpusInStock } from '../lib/scrapeGpus'
 import { AvailableGpus } from '../interfaces/interfaces'
 

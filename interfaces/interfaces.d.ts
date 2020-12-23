@@ -5,7 +5,7 @@ export interface GpuInfo {
   inStock: boolean
 }
 
-export interface StoreGpuStock {
+export interface GpuStock {
   Nvidia3060Ti: GpuInfo[],
   Nvidia3070: GpuInfo[],
   Nvidia3080: GpuInfo[],
