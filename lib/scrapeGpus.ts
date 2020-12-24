@@ -9,6 +9,7 @@ export async function getGpusInStock(): Promise<GpuStock> {
     let gpus = await getBestBuyGpus()
     append(gpus, await getBhPhotoGpus())
     append(gpus, await getSamsClubGpus())
+    append(gpus, await getNeweggGpus())
 
     let gpusInStock: GpuStock = {
         Nvidia3060Ti: gpus.Nvidia3060Ti.filter(gpuInfo => gpuInfo.inStock),
@@ -35,14 +36,15 @@ export function append(gpus: GpuStock, addtlGpus: GpuStock): GpuStock {
     gpus.Nvidia3070.push(...addtlGpus.Nvidia3070)
     gpus.Nvidia3080.push(...addtlGpus.Nvidia3080)
     gpus.Nvidia3090.push(...addtlGpus.Nvidia3090)
+    gpus.NvidiaTitanRtx.push(...addtlGpus.NvidiaTitanRtx)
     gpus.AmdRx6800.push(...addtlGpus.AmdRx6800)
     gpus.AmdRx6800Xt.push(...addtlGpus.AmdRx6800Xt)
     gpus.AmdRx6900Xt.push(...addtlGpus.AmdRx6900Xt)
-    
+
     return gpus
 }
 
-export async function getBestBuyGpus(): Promise<GpuStock> {
+async function getBestBuyGpus(): Promise<GpuStock> {
     const bestBuy3060Ti = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203060%20Ti'
     const bestBuy3070 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203070'
     const bestBuy3080 = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203080'
@@ -75,7 +77,7 @@ export async function getBestBuyGpus(): Promise<GpuStock> {
     return gpuStock
 }
 
-export async function getBhPhotoGpus(): Promise<GpuStock> {
+async function getBhPhotoGpus(): Promise<GpuStock> {
     const bhPhoto3060Ti = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3060-ti'
     const bhPhoto3070 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3070'
     const bhPhoto3080 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3080'
@@ -109,10 +111,10 @@ export async function getBhPhotoGpus(): Promise<GpuStock> {
     return gpuStock
 }
 
-export async function getSamsClubGpus(): Promise<GpuStock> {
+async function getSamsClubGpus(): Promise<GpuStock> {
 
     const samsClubGpus = 'https://www.samsclub.com/b/hard-drives-storage/6890123?clubId=6352&offset=0&rootDimension=pcs_availability%253AOnlinepipsymbProduct%2520Type%253AGraphic%2520Cards&searchCategoryId=6890123&selectedFilter=all&sortKey=relevance&sortOrder=1'
-    
+
     const nvidia3070s = await getSamsClubGpu(samsClubGpus, "3070")
     const nvidia3080s = await getSamsClubGpu(samsClubGpus, "3080")
     const nvidia3090s = await getSamsClubGpu(samsClubGpus, "3090")
@@ -125,6 +127,38 @@ export async function getSamsClubGpus(): Promise<GpuStock> {
         NvidiaTitanRtx: [],
         AmdRx6800: [],
         AmdRx6800Xt: [],
+        AmdRx6900Xt: []
+    }
+
+    return gpuStock
+}
+
+async function getNeweggGpus(): Promise<GpuStock> {
+    const newegg3060Ti = 'https://www.newegg.com/p/pl?N=100007709%20601359415&PageSize=96'
+    const newegg3070 = 'https://www.newegg.com/p/pl?N=100007709%20601357250&PageSize=96'
+    const newegg3080 = 'https://www.newegg.com/p/pl?N=100007709%20601357247&PageSize=96'
+    const newegg3090 = 'https://www.newegg.com/p/pl?N=100007709%20601357248&PageSize=96'
+    const neweggTitanRtx = 'https://www.newegg.com/p/pl?d=titan+rtx&N=100006662%2050001441%201065715366&PageSize=96'
+    const neweggRx6800 = 'https://www.newegg.com/p/pl?N=100007709%20601359427&PageSize=96'
+    const neweggRx6800Xt = 'https://www.newegg.com/p/pl?N=100007709%20601359422&PageSize=96'
+    const neweggRx6900Xt = 'https://www.newegg.com/p/pl?N=100007709%20601359957&PageSize=96'
+
+    const nvidia3060Tis = await getNeweggGpu(newegg3060Ti)
+    const nvidia3070s = await getNeweggGpu(newegg3070)
+    const nvidia3080s = await getNeweggGpu(newegg3080)
+    const nvidia3090s = await getNeweggGpu(newegg3090)
+    const NvidiaTitanRtxs = await getNeweggGpu(neweggTitanRtx)
+    const amdRx6800s = await getNeweggGpu(neweggRx6800)
+    const amdRx6800Xts = await getNeweggGpu(neweggRx6800Xt)
+
+    const gpuStock: GpuStock = {
+        Nvidia3060Ti: nvidia3060Tis,
+        Nvidia3070: nvidia3070s,
+        Nvidia3080: nvidia3080s,
+        Nvidia3090: nvidia3090s,
+        NvidiaTitanRtx: NvidiaTitanRtxs,
+        AmdRx6800: amdRx6800s,
+        AmdRx6800Xt: amdRx6800Xts,
         AmdRx6900Xt: []
     }
 
@@ -228,5 +262,40 @@ async function getSamsClubGpu(url: string, keyword: string): Promise<GpuInfo[]> 
 
         gpus.push(gpu)
     })
+    return gpus
+}
+
+async function getNeweggGpu(url: string): Promise<GpuInfo[]> {
+    const res = await axios.get(url)
+    const data = res.data
+    const $ = cheerio.load(data)
+    let gpus: GpuInfo[] = new Array()
+    $('.item-container').each(function (index, element) {
+        const infoBlock = $(this).children('.item-info')
+        const priceBlock = $(this).children('.item-action')
+
+        const name = infoBlock.children('a').text()
+        const address = infoBlock.children('a').attr('href')
+        const inStockText = infoBlock.find('.item-promo').text()
+        const inStock = (inStockText !== 'OUT OF STOCK')
+        let price: number
+        if (inStock) {
+            const priceDollars = priceBlock.find('.price-current').children('strong').text()
+            const priceCents = priceBlock.find('.price-current').children('sup').text()
+            price = Number(priceDollars + priceCents)
+        } else {
+            price = -1
+        }
+
+        const gpu: GpuInfo = {
+            name: name,
+            address: address,
+            price: price,
+            inStock: inStock
+        }
+
+        gpus.push(gpu)
+    })
+
     return gpus
 }
