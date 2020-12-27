@@ -3,26 +3,84 @@ import cheerio from 'cheerio'
 import { GpuInfo, GpuStock } from '../interfaces/interfaces'
 
 /**
- * Returns a list of all GPUs currently in stock
+ * Filter a set of Gpus and return only those currently in stock, maintaining sort order
+ * @param gpus set of Gpus to filter
  */
-export async function getGpusInStock(): Promise<GpuStock> {
+export function getGpusInStock(gpus: GpuStock): GpuStock {
+    let gpusInStock: GpuStock = {
+        nvidia3060Ti: gpus.nvidia3060Ti.filter(gpuInfo => gpuInfo.inStock),
+        nvidia3070: gpus.nvidia3070.filter(gpuInfo => gpuInfo.inStock),
+        nvidia3080: gpus.nvidia3080.filter(gpuInfo => gpuInfo.inStock),
+        nvidia3090: gpus.nvidia3090.filter(gpuInfo => gpuInfo.inStock),
+        nvidiaTitanRtx: gpus.nvidiaTitanRtx.filter(gpuInfo => gpuInfo.inStock),
+        amdRx6800: gpus.amdRx6800.filter(gpuInfo => gpuInfo.inStock),
+        amdRx6800Xt: gpus.amdRx6800Xt.filter(gpuInfo => gpuInfo.inStock),
+        amdRx6900Xt: gpus.amdRx6900Xt.filter(gpuInfo => gpuInfo.inStock)
+    }
+
+    logAvailable(gpusInStock)
+    return gpusInStock
+}
+
+/**
+ * Get a list of Gpus
+ */
+export async function getGpus(): Promise<GpuStock> {
     let gpus = await getBestBuyGpus()
     append(gpus, await getBhPhotoGpus())
     append(gpus, await getSamsClubGpus())
     append(gpus, await getNeweggGpus())
 
-    let gpusInStock: GpuStock = {
-        Nvidia3060Ti: gpus.Nvidia3060Ti.filter(gpuInfo => gpuInfo.inStock),
-        Nvidia3070: gpus.Nvidia3070.filter(gpuInfo => gpuInfo.inStock),
-        Nvidia3080: gpus.Nvidia3080.filter(gpuInfo => gpuInfo.inStock),
-        Nvidia3090: gpus.Nvidia3090.filter(gpuInfo => gpuInfo.inStock),
-        NvidiaTitanRtx: gpus.NvidiaTitanRtx.filter(gpuInfo => gpuInfo.inStock),
-        AmdRx6800: gpus.AmdRx6800.filter(gpuInfo => gpuInfo.inStock),
-        AmdRx6800Xt: gpus.AmdRx6800Xt.filter(gpuInfo => gpuInfo.inStock),
-        AmdRx6900Xt: gpus.AmdRx6900Xt.filter(gpuInfo => gpuInfo.inStock)
-    }
+    return gpus
+}
 
-    return gpusInStock
+/**
+ * Sorts a set of gpus by ascending price
+ * @param gpus The set of gpus to sort. This variable is modified to contain the sorted
+ * results
+ * @returns the set of gpus, sorted by ascending price
+ */
+export function sortGpus(gpus: GpuStock): GpuStock {
+    gpus.nvidia3060Ti = gpus.nvidia3060Ti.sort(compareGpuPrices)
+    gpus.nvidia3070 = gpus.nvidia3070.sort(compareGpuPrices)
+    gpus.nvidia3080 = gpus.nvidia3080.sort(compareGpuPrices)
+    gpus.nvidia3090 = gpus.nvidia3090.sort(compareGpuPrices)
+    gpus.nvidiaTitanRtx = gpus.nvidiaTitanRtx.sort(compareGpuPrices)
+    gpus.amdRx6800 = gpus.amdRx6800.sort(compareGpuPrices)
+    gpus.amdRx6800Xt = gpus.amdRx6800Xt.sort(compareGpuPrices)
+    gpus.amdRx6900Xt = gpus.amdRx6900Xt.sort(compareGpuPrices)
+
+    return gpus
+}
+
+/**
+ * Compares the prices of 2 gpus, as needed by functions like sort(). Any GpuInfo with a 
+ * negative price will be put as the greater of the two values, as this typically indicates
+ * that no pricing information was available
+ * @param a GpuInfo to be compared
+ * @param b GpuInfo to be compared
+ */
+function compareGpuPrices(a: GpuInfo, b: GpuInfo): number {
+    const priceA = Number(a.price)
+    const priceB = Number(b.price)
+    if (priceA < 0) {
+        return 1
+    } else if (priceB < 0) {
+        return -1
+    } else {
+        return priceA - priceB
+    }
+}
+
+async function logAvailable(gpusInStock: GpuStock) {
+    gpusInStock.nvidia3060Ti.forEach(gpu => console.log(gpu.address))
+    gpusInStock.nvidia3070.forEach(gpu => console.log(gpu.address))
+    gpusInStock.nvidia3080.forEach(gpu => console.log(gpu.address))
+    gpusInStock.nvidia3090.forEach(gpu => console.log(gpu.address))
+    gpusInStock.nvidiaTitanRtx.forEach(gpu => console.log(gpu.address))
+    gpusInStock.amdRx6800.forEach(gpu => console.log(gpu.address))
+    gpusInStock.amdRx6800Xt.forEach(gpu => console.log(gpu.address))
+    gpusInStock.amdRx6900Xt.forEach(gpu => console.log(gpu.address))
 }
 
 /**
@@ -31,18 +89,20 @@ export async function getGpusInStock(): Promise<GpuStock> {
  * @param addtlGpus The set of GpuStocks being appended
  * @returns The union of gpus and addtleGpus, as stored in gpus
  */
-export function append(gpus: GpuStock, addtlGpus: GpuStock): GpuStock {
-    gpus.Nvidia3060Ti.push(...addtlGpus.Nvidia3060Ti)
-    gpus.Nvidia3070.push(...addtlGpus.Nvidia3070)
-    gpus.Nvidia3080.push(...addtlGpus.Nvidia3080)
-    gpus.Nvidia3090.push(...addtlGpus.Nvidia3090)
-    gpus.NvidiaTitanRtx.push(...addtlGpus.NvidiaTitanRtx)
-    gpus.AmdRx6800.push(...addtlGpus.AmdRx6800)
-    gpus.AmdRx6800Xt.push(...addtlGpus.AmdRx6800Xt)
-    gpus.AmdRx6900Xt.push(...addtlGpus.AmdRx6900Xt)
+function append(gpus: GpuStock, addtlGpus: GpuStock): GpuStock {
+    gpus.nvidia3060Ti.push(...addtlGpus.nvidia3060Ti)
+    gpus.nvidia3070.push(...addtlGpus.nvidia3070)
+    gpus.nvidia3080.push(...addtlGpus.nvidia3080)
+    gpus.nvidia3090.push(...addtlGpus.nvidia3090)
+    gpus.nvidiaTitanRtx.push(...addtlGpus.nvidiaTitanRtx)
+    gpus.amdRx6800.push(...addtlGpus.amdRx6800)
+    gpus.amdRx6800Xt.push(...addtlGpus.amdRx6800Xt)
+    gpus.amdRx6900Xt.push(...addtlGpus.amdRx6900Xt)
 
     return gpus
 }
+
+
 
 async function getBestBuyGpus(): Promise<GpuStock> {
     const bestBuy3060Ti = 'https://www.bestbuy.com/site/computer-cards-components/video-graphics-cards/abcat0507002.c?id=abcat0507002&qp=gpusv_facet%3DGraphics%20Processing%20Unit%20(GPU)~NVIDIA%20GeForce%20RTX%203060%20Ti'
@@ -64,14 +124,14 @@ async function getBestBuyGpus(): Promise<GpuStock> {
     const amdRx6900Xts = await getBestBuyGpu(bestBuyRx6900Xt)
 
     const gpuStock: GpuStock = {
-        Nvidia3060Ti: nvidia3060Tis,
-        Nvidia3070: nvidia3070s,
-        Nvidia3080: nvidia3080s,
-        Nvidia3090: nvidia3090s,
-        NvidiaTitanRtx: NvidiaTitanRtxs,
-        AmdRx6800: amdRx6800s,
-        AmdRx6800Xt: amdRx6800Xts,
-        AmdRx6900Xt: amdRx6900Xts
+        nvidia3060Ti: nvidia3060Tis,
+        nvidia3070: nvidia3070s,
+        nvidia3080: nvidia3080s,
+        nvidia3090: nvidia3090s,
+        nvidiaTitanRtx: NvidiaTitanRtxs,
+        amdRx6800: amdRx6800s,
+        amdRx6800Xt: amdRx6800Xts,
+        amdRx6900Xt: amdRx6900Xts
     }
 
     return gpuStock
@@ -83,7 +143,6 @@ async function getBhPhotoGpus(): Promise<GpuStock> {
     const bhPhoto3080 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3080'
     const bhPhoto3090 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_nvidia-geforce-series_5011%3Ageforce-rtx-3090'
     // This is a search as there's no category
-    // TODO: Make sure search results are formatted the same as category results
     const bhPhotoTitanRtx = 'https://www.bhphotovideo.com/c/search?Ntt=titanrtx&N=0&InitialSearch=yes&sts=ma'
     const bhPhotoRx6800 = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_amd-radeon-series_5012%3Aradeon-rx-6800'
     const bhPhotoRx6800Xt = 'https://www.bhphotovideo.com/c/products/Graphic-Cards/ci/6567/N/3668461602?filters=fct_amd-radeon-series_5012%3Aradeon-rx-6800-xt'
@@ -98,14 +157,14 @@ async function getBhPhotoGpus(): Promise<GpuStock> {
     const amdRx6800Xts = await getBhPhotoGpu(bhPhotoRx6800Xt)
 
     const gpuStock: GpuStock = {
-        Nvidia3060Ti: nvidia3060Tis,
-        Nvidia3070: nvidia3070s,
-        Nvidia3080: nvidia3080s,
-        Nvidia3090: nvidia3090s,
-        NvidiaTitanRtx: NvidiaTitanRtxs,
-        AmdRx6800: amdRx6800s,
-        AmdRx6800Xt: amdRx6800Xts,
-        AmdRx6900Xt: []
+        nvidia3060Ti: nvidia3060Tis,
+        nvidia3070: nvidia3070s,
+        nvidia3080: nvidia3080s,
+        nvidia3090: nvidia3090s,
+        nvidiaTitanRtx: NvidiaTitanRtxs,
+        amdRx6800: amdRx6800s,
+        amdRx6800Xt: amdRx6800Xts,
+        amdRx6900Xt: []
     }
 
     return gpuStock
@@ -120,14 +179,14 @@ async function getSamsClubGpus(): Promise<GpuStock> {
     const nvidia3090s = await getSamsClubGpu(samsClubGpus, "3090")
 
     const gpuStock: GpuStock = {
-        Nvidia3060Ti: [],
-        Nvidia3070: nvidia3070s,
-        Nvidia3080: nvidia3080s,
-        Nvidia3090: nvidia3090s,
-        NvidiaTitanRtx: [],
-        AmdRx6800: [],
-        AmdRx6800Xt: [],
-        AmdRx6900Xt: []
+        nvidia3060Ti: [],
+        nvidia3070: nvidia3070s,
+        nvidia3080: nvidia3080s,
+        nvidia3090: nvidia3090s,
+        nvidiaTitanRtx: [],
+        amdRx6800: [],
+        amdRx6800Xt: [],
+        amdRx6900Xt: []
     }
 
     return gpuStock
@@ -152,14 +211,14 @@ async function getNeweggGpus(): Promise<GpuStock> {
     const amdRx6800Xts = await getNeweggGpu(neweggRx6800Xt)
 
     const gpuStock: GpuStock = {
-        Nvidia3060Ti: nvidia3060Tis,
-        Nvidia3070: nvidia3070s,
-        Nvidia3080: nvidia3080s,
-        Nvidia3090: nvidia3090s,
-        NvidiaTitanRtx: NvidiaTitanRtxs,
-        AmdRx6800: amdRx6800s,
-        AmdRx6800Xt: amdRx6800Xts,
-        AmdRx6900Xt: []
+        nvidia3060Ti: nvidia3060Tis,
+        nvidia3070: nvidia3070s,
+        nvidia3080: nvidia3080s,
+        nvidia3090: nvidia3090s,
+        nvidiaTitanRtx: NvidiaTitanRtxs,
+        amdRx6800: amdRx6800s,
+        amdRx6800Xt: amdRx6800Xts,
+        amdRx6900Xt: []
     }
 
     return gpuStock
@@ -179,14 +238,15 @@ async function getBestBuyGpu(url: string): Promise<GpuInfo[]> {
         const addressPrefix = 'https://www.bestbuy.com'
         const address = addressPrefix + link.attr('href')
 
-        const price = priceBlock.find('.priceView-hero-price.priceView-customer-price')
-            .children('span').text()
+        const priceString = priceBlock.find('.priceView-hero-price.priceView-customer-price')
+            .children('span[aria-hidden]').text()
+        const price = priceString.substring(1).replace(/,/g, '')
         const itemStatus = priceBlock.find('.add-to-cart-button').text()
 
         const gpu: GpuInfo = {
             name: name,
             address: address,
-            price: parseInt(price),
+            price: price,
             inStock: itemStatus === 'Add to Cart' || itemStatus === 'Check Stores'
         }
         gpus.push(gpu)
@@ -211,7 +271,7 @@ async function getBhPhotoGpu(url: string): Promise<GpuInfo[]> {
         const priceDollars = priceBlock.find('.container_14EdEmSSsYmuetz3imKuAI')
             .children('span').text().substring(1) // first char is $
         const priceCents = priceBlock.find('.sup_16V7uLfWDd9kJVKs5bfwSx').text()
-        const price = Number(priceDollars + '.' + priceCents)
+        const price = priceDollars + '.' + priceCents
         priceBlock.filter('.notifyBtn_3xVC8mda-LbSgYs4mjp5NS buttonTheme_1mBX7Kocn_Oq_wzW6ri7s5 tertiary_3fLAKfyXQQMUL4ZSxgfZGx')
         const itemStatusButton = priceBlock.find('.container_2SrtUKcYWGHRxMYB3ks_0q')
             .find('button')
@@ -247,7 +307,7 @@ async function getSamsClubGpu(url: string, keyword: string): Promise<GpuInfo[]> 
 
         const priceDollars = priceBlock.find('.Price-characteristic').text()
         const priceCents = priceBlock.find('.Price-mantissa').text()
-        const price = Number(priceDollars + '.' + priceCents)
+        const price = priceDollars + '.' + priceCents
         const itemStatusButton = priceBlock.find('.sc-btn.sc-btn-primary.sc-btn-block.sc-pc-action-button.sc-pc-add-to-cart')
         const itemStatus = itemStatusButton.attr('disabled')
         // instock if disabled attr doesn't exist (either undefined or false)
@@ -278,13 +338,16 @@ async function getNeweggGpu(url: string): Promise<GpuInfo[]> {
         const address = infoBlock.children('a').attr('href')
         const inStockText = infoBlock.find('.item-promo').text()
         const inStock = (inStockText !== 'OUT OF STOCK')
-        let price: number
+        let price: string
         if (inStock) {
-            const priceDollars = priceBlock.find('.price-current').children('strong').text()
+            // TODO: All pricing stuff should be internationalized
+            const priceDollars = priceBlock.find('.price-current').children('strong').text().replace(/,/g, '')
             const priceCents = priceBlock.find('.price-current').children('sup').text()
-            price = Number(priceDollars + priceCents)
+            console.log(priceDollars)
+            console.log(priceCents)
+            price = priceDollars + priceCents
         } else {
-            price = -1
+            price = '-1'
         }
 
         const gpu: GpuInfo = {
