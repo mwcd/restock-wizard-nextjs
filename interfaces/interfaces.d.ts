@@ -17,6 +17,5 @@ export interface GpuStock {
 }
 
 export interface GpuStockReturn {
-  availableGpuStock: GpuStock
-  totalGpuStock: GpuStock
+  gpus: GpuStock
 }

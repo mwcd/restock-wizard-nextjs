@@ -4,18 +4,15 @@ import styles from '../styles/Home.module.css'
 import React from 'react'
 import { useTable } from 'react-table'
 import { GetStaticPropsResult, InferGetStaticPropsType } from 'next'
-import { getGpus, getGpusInStock, sortGpus } from '../lib/scrapeGpus'
+import { getHomepageGpus } from '../lib/scrapeGpus'
 import { GpuStockReturn } from '../interfaces/interfaces'
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<GpuStockReturn>> {
-  const allGpus = await getGpus()
-  sortGpus(allGpus)
-  let availableGpus = getGpusInStock(allGpus)
+  const homepageGpus = await getHomepageGpus()
 
   return {
     props: {
-      availableGpuStock: availableGpus,
-      totalGpuStock: allGpus
+      gpus: homepageGpus,
     },
     // Next.js will attempt to re-generate the page:
     // - When a request comes in
@@ -24,57 +21,57 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<GpuStockRet
   }
 }
 
-export default function Home({ availableGpuStock: availableGpuStock, totalGpuStock: totalGpuStock }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Home({ gpus: gpus }: InferGetStaticPropsType<typeof getStaticProps>) {
 
   const data = React.useMemo(
     () => [
       {
-        col1: 'RTX 3060 Ti',
-        col2: availableGpuStock.nvidia3060Ti.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.nvidia3060Ti.length > 0 ? availableGpuStock.nvidia3060Ti[0].price : totalGpuStock.nvidia3060Ti[0].price,
-        col4: availableGpuStock.nvidia3060Ti.length > 0 ? availableGpuStock.nvidia3060Ti[0].address : totalGpuStock.nvidia3060Ti[0].address,
+        prodName: 'RTX 3060 Ti',
+        avail: gpus.nvidia3060Ti[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.nvidia3060Ti[0].price,
+        link: gpus.nvidia3060Ti[0].address
       },
       {
-        col1: 'RTX 3070',
-        col2: availableGpuStock.nvidia3070.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.nvidia3070.length > 0 ? availableGpuStock.nvidia3070[0].price : totalGpuStock.nvidia3070[0].price,
-        col4: availableGpuStock.nvidia3070.length > 0 ? availableGpuStock.nvidia3070[0].address : totalGpuStock.nvidia3070[0].address,
+        prodName: 'RTX 3070',
+        avail: gpus.nvidia3070[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.nvidia3070[0].price,
+        link: gpus.nvidia3070[0].address
       },
       {
-        col1: 'RTX 3080',
-        col2: availableGpuStock.nvidia3080.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.nvidia3080.length > 0 ? availableGpuStock.nvidia3080[0].price : totalGpuStock.nvidia3080[0].price,
-        col4: availableGpuStock.nvidia3080.length > 0 ? availableGpuStock.nvidia3080[0].address : totalGpuStock.nvidia3080[0].address,
+        prodName: 'RTX 3080',
+        avail: gpus.nvidia3080[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.nvidia3080[0].price,
+        link: gpus.nvidia3080[0].address
       },
       {
-        col1: 'RTX 3090',
-        col2: availableGpuStock.nvidia3090.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.nvidia3090.length > 0 ? availableGpuStock.nvidia3090[0].price : totalGpuStock.nvidia3090[0].price,
-        col4: availableGpuStock.nvidia3090.length > 0 ? availableGpuStock.nvidia3090[0].address : totalGpuStock.nvidia3090[0].address,
+        prodName: 'RTX 3090',
+        avail: gpus.nvidia3090[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.nvidia3090[0].price,
+        link: gpus.nvidia3090[0].address
       },
       {
-        col1: 'TITAN RTX',
-        col2: availableGpuStock.nvidiaTitanRtx.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.nvidiaTitanRtx.length > 0 ? availableGpuStock.nvidiaTitanRtx[0].price : totalGpuStock.nvidiaTitanRtx[0].price,
-        col4: availableGpuStock.nvidiaTitanRtx.length > 0 ? availableGpuStock.nvidiaTitanRtx[0].address : totalGpuStock.nvidiaTitanRtx[0].address,
+        prodName: 'TITAN RTX',
+        avail: gpus.nvidiaTitanRtx[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.nvidiaTitanRtx[0].price,
+        link: gpus.nvidiaTitanRtx[0].address
       },
       {
-        col1: 'RX 6800',
-        col2: availableGpuStock.amdRx6800.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.amdRx6800.length > 0 ? availableGpuStock.amdRx6800[0].price : totalGpuStock.amdRx6800[0].price,
-        col4: availableGpuStock.amdRx6800.length > 0 ? availableGpuStock.amdRx6800[0].address : totalGpuStock.amdRx6800[0].address,
+        prodName: 'RX 6800',
+        avail: gpus.amdRx6800[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.amdRx6800[0].price,
+        link: gpus.amdRx6800[0].address
       },
       {
-        col1: 'RX 6800 XT',
-        col2: availableGpuStock.amdRx6800Xt.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.amdRx6800Xt.length > 0 ? availableGpuStock.amdRx6800Xt[0].price : totalGpuStock.amdRx6800Xt[0].price,
-        col4: availableGpuStock.amdRx6800Xt.length > 0 ? availableGpuStock.amdRx6800Xt[0].address : totalGpuStock.amdRx6800Xt[0].address,
+        prodName: 'RX 6800 XT',
+        avail: gpus.amdRx6800Xt[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.amdRx6800Xt[0].price,
+        link: gpus.amdRx6800Xt[0].address
       },
       {
-        col1: 'RX 6900 XT',
-        col2: availableGpuStock.amdRx6900Xt.length > 0 ? 'Available' : 'Not Available',
-        col3: availableGpuStock.amdRx6900Xt.length > 0 ? availableGpuStock.amdRx6900Xt[0].price : totalGpuStock.amdRx6900Xt[0].price,
-        col4: availableGpuStock.amdRx6900Xt.length > 0 ? availableGpuStock.amdRx6900Xt[0].address : totalGpuStock.amdRx6900Xt[0].address,
+        prodName: 'RX 6900 XT',
+        avail: gpus.amdRx6900Xt[0].inStock ? 'Available' : 'Not Available',
+        price: gpus.amdRx6900Xt[0].price,
+        link: gpus.amdRx6900Xt[0].address
       },
     ],
     []
@@ -84,19 +81,19 @@ export default function Home({ availableGpuStock: availableGpuStock, totalGpuSto
     () => [
       {
         Header: 'Product Name',
-        accessor: 'col1', // accessor is the "key" in the data
+        accessor: 'prodName', // accessor is the "key" in the data
       },
       {
         Header: 'Availability',
-        accessor: 'col2',
+        accessor: 'avail',
       },
       {
         Header: 'Price',
-        accessor: 'col3',
+        accessor: 'price',
       },
       {
         Header: 'Link',
-        accessor: 'col4',
+        accessor: 'link',
         Cell: url => <a target="_blank" rel="noopener noreferrer" className={styles.button} href={url.value}> 
         View &rarr;</a>
       },

@@ -2,6 +2,41 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 import { GpuInfo, GpuStock } from '../interfaces/interfaces'
 
+export async function getHomepageGpus(): Promise<GpuStock> {
+    const allGpus = await getGpus()
+    sortGpus(allGpus)
+    const availableGpus = getGpusInStock(allGpus)
+
+    const gpuStock: GpuStock = {
+        nvidia3060Ti: availableGpus.nvidia3060Ti.length > 0 ?
+            [availableGpus.nvidia3060Ti[0]] :
+            [allGpus.nvidia3060Ti[0]],
+        nvidia3070: availableGpus.nvidia3070.length > 0 ?
+            [availableGpus.nvidia3070[0]] :
+            [allGpus.nvidia3070[0]],
+        nvidia3080: availableGpus.nvidia3080.length > 0 ?
+            [availableGpus.nvidia3080[0]] :
+            [allGpus.nvidia3080[0]],
+        nvidia3090: availableGpus.nvidia3090.length > 0 ?
+            [availableGpus.nvidia3090[0]] :
+            [allGpus.nvidia3090[0]],
+        nvidiaTitanRtx: availableGpus.nvidiaTitanRtx.length > 0 ?
+            [availableGpus.nvidiaTitanRtx[0]] :
+            [allGpus.nvidiaTitanRtx[0]],
+        amdRx6800: availableGpus.amdRx6800.length > 0 ?
+            [availableGpus.amdRx6800[0]] :
+            [allGpus.amdRx6800[0]],
+        amdRx6800Xt: availableGpus.amdRx6800Xt.length > 0 ?
+            [availableGpus.amdRx6800Xt[0]] :
+            [allGpus.amdRx6800Xt[0]],
+        amdRx6900Xt: availableGpus.amdRx6900Xt.length > 0 ?
+            [availableGpus.amdRx6900Xt[0]] :
+            [allGpus.amdRx6900Xt[0]],
+    }
+
+    return gpuStock
+}
+
 /**
  * Filter a set of Gpus and return only those currently in stock, maintaining sort order
  * @param gpus set of Gpus to filter

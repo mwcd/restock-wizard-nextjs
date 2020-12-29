@@ -141,6 +141,10 @@
   text-align: left;
 }
 
+.card td, .card th {
+  padding: 10px 10px;
+}
+
 .card tbody tr {
   border-bottom: 1px solid #eaeaea;
 }
