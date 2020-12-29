@@ -72,14 +72,6 @@
   font-size: 1.5rem;
 }
 
-.code {
-  background: #fafafa;
-  border-radius: 5px;
-  padding: 0.75rem;
-  font-size: 1.1rem;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-}
-
 .grid {
   display: flex;
   align-items: center;
@@ -139,7 +131,6 @@
 .card table {
   width: 100%;
   border-collapse: collapse;
-  margin: 25px 0;
   border: 1px solid #eaeaea;
 }
 
@@ -148,10 +139,6 @@
   border: 1px solid #009879;
   color: #ffffff;
   text-align: left;
-}
-
-.card td, .card th {
-  padding: 10px 10px;
 }
 
 .card tbody tr {
@@ -173,11 +160,4 @@ a.button {
 a.button:hover {
   color: #000000;
   background-color: #c0c0c0;
-}
-
-@media (max-width: 600px) {
-  .grid {
-    width: 100%;
-    flex-direction: column;
-  }
 }
