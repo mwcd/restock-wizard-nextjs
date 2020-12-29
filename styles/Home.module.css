@@ -53,9 +53,7 @@
   text-decoration: none;
 }
 
-.title a:hover,
-.title a:focus,
-.title a:active {
+.title a:hover, .title a:focus, .title a:active {
   text-decoration: underline;
 }
 
@@ -65,8 +63,7 @@
   font-size: 4rem;
 }
 
-.title,
-.description {
+.title, .description {
   text-align: center;
 }
 
@@ -80,8 +77,7 @@
   border-radius: 5px;
   padding: 0.75rem;
   font-size: 1.1rem;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
 
 .grid {
@@ -89,7 +85,7 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  max-width: 800px;
+  max-width: 100%;
   margin-top: 3rem;
 }
 
@@ -105,12 +101,12 @@
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-.card:hover,
+/* .card:hover,
 .card:focus,
 .card:active {
   color: #0070f3;
   border-color: #0070f3;
-}
+} */
 
 .card h3 {
   margin: 0 0 1rem 0;
@@ -138,6 +134,45 @@
 
 .logo {
   height: 1em;
+}
+
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 25px 0;
+  border: 1px solid #eaeaea;
+}
+
+.card thead tr {
+  background-color: #009879;
+  border: 1px solid #009879;
+  color: #ffffff;
+  text-align: left;
+}
+
+.card td, .card th {
+  padding: 10px 10px;
+}
+
+.card tbody tr {
+  border-bottom: 1px solid #eaeaea;
+}
+
+.card tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+a.button {
+  padding: 0.35em .7em;
+  border: 0.1em solid #c0c0c0;
+  margin: 0 0.3em 0.3em 0;
+  border-radius: 0.3em;
+  transition: all 0.2s;
+}
+
+a.button:hover {
+  color: #000000;
+  background-color: #c0c0c0;
 }
 
 @media (max-width: 600px) {

@@ -18,7 +18,6 @@ export function getGpusInStock(gpus: GpuStock): GpuStock {
         amdRx6900Xt: gpus.amdRx6900Xt.filter(gpuInfo => gpuInfo.inStock)
     }
 
-    logAvailable(gpusInStock)
     return gpusInStock
 }
 
@@ -70,17 +69,6 @@ function compareGpuPrices(a: GpuInfo, b: GpuInfo): number {
     } else {
         return priceA - priceB
     }
-}
-
-async function logAvailable(gpusInStock: GpuStock) {
-    gpusInStock.nvidia3060Ti.forEach(gpu => console.log(gpu.address))
-    gpusInStock.nvidia3070.forEach(gpu => console.log(gpu.address))
-    gpusInStock.nvidia3080.forEach(gpu => console.log(gpu.address))
-    gpusInStock.nvidia3090.forEach(gpu => console.log(gpu.address))
-    gpusInStock.nvidiaTitanRtx.forEach(gpu => console.log(gpu.address))
-    gpusInStock.amdRx6800.forEach(gpu => console.log(gpu.address))
-    gpusInStock.amdRx6800Xt.forEach(gpu => console.log(gpu.address))
-    gpusInStock.amdRx6900Xt.forEach(gpu => console.log(gpu.address))
 }
 
 /**
@@ -336,15 +324,13 @@ async function getNeweggGpu(url: string): Promise<GpuInfo[]> {
 
         const name = infoBlock.children('a').text()
         const address = infoBlock.children('a').attr('href')
-        const inStockText = infoBlock.find('.item-promo').text()
-        const inStock = (inStockText !== 'OUT OF STOCK')
+        const inStockText = priceBlock.find('.btn.btn-primary.btn-mini').text()
+        const inStock = (inStockText === 'Add to cart ')
         let price: string
         if (inStock) {
             // TODO: All pricing stuff should be internationalized
             const priceDollars = priceBlock.find('.price-current').children('strong').text().replace(/,/g, '')
             const priceCents = priceBlock.find('.price-current').children('sup').text()
-            console.log(priceDollars)
-            console.log(priceCents)
             price = priceDollars + priceCents
         } else {
             price = '-1'
