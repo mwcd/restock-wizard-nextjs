@@ -93,13 +93,6 @@
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-/* .card:hover,
-.card:focus,
-.card:active {
-  color: #0070f3;
-  border-color: #0070f3;
-} */
-
 .card h3 {
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
@@ -151,6 +144,12 @@
 
 .card tbody tr:nth-of-type(even) {
   background-color: #f3f3f3;
+}
+
+p.cardFooter {
+  padding-top: 5px;
+  font-size: .75em;
+  text-align: center;
 }
 
 a.button {

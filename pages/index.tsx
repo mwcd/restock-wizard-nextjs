@@ -9,19 +9,22 @@ import { GpuStockReturn } from '../interfaces/interfaces'
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<GpuStockReturn>> {
   const homepageGpus = await getHomepageGpus()
+  const lastUpdated = new Date()
+  const dateOpts = { timeZone: 'America/New_York', timeZoneName: 'short' }
 
   return {
     props: {
       gpus: homepageGpus,
+      lastUpdated: lastUpdated.toLocaleTimeString('en-US', dateOpts)
     },
     // Next.js will attempt to re-generate the page:
     // - When a request comes in
     // - At most once every 300 second
-    revalidate: 300,
+    revalidate: 30,
   }
 }
 
-export default function Home({ gpus: gpus }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Home({ gpus: gpus, lastUpdated: lastUpdated }: InferGetStaticPropsType<typeof getStaticProps>) {
 
   const data = React.useMemo(
     () => [
@@ -81,7 +84,7 @@ export default function Home({ gpus: gpus }: InferGetStaticPropsType<typeof getS
     () => [
       {
         Header: 'Product Name',
-        accessor: 'prodName', // accessor is the "key" in the data
+        accessor: 'prodName',
       },
       {
         Header: 'Availability',
@@ -94,8 +97,8 @@ export default function Home({ gpus: gpus }: InferGetStaticPropsType<typeof getS
       {
         Header: 'Link',
         accessor: 'link',
-        Cell: url => <a target="_blank" rel="noopener noreferrer" className={styles.button} href={url.value}> 
-        View &rarr;</a>
+        Cell: url => <a target="_blank" rel="noopener noreferrer" className={styles.button} href={url.value}>
+          View &rarr;</a>
       },
     ],
     []
@@ -110,7 +113,6 @@ export default function Home({ gpus: gpus }: InferGetStaticPropsType<typeof getS
     rows,
     prepareRow,
   } = tableInstance
-
 
   return (
     <Layout>
@@ -158,6 +160,7 @@ export default function Home({ gpus: gpus }: InferGetStaticPropsType<typeof getS
                   })}
                 </tbody>
               </table>
+              <p className={styles.cardFooter}>Last updated: {lastUpdated}</p>
             </div>
 
             <a className={styles.card}>

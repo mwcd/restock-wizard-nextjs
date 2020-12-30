@@ -18,4 +18,5 @@ export interface GpuStock {
 
 export interface GpuStockReturn {
   gpus: GpuStock
+  lastUpdated: string
 }
