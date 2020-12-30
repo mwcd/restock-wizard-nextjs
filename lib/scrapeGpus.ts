@@ -95,8 +95,8 @@ export function sortGpus(gpus: GpuStock): GpuStock {
  * @param b GpuInfo to be compared
  */
 function compareGpuPrices(a: GpuInfo, b: GpuInfo): number {
-    const priceA = Number(a.price)
-    const priceB = Number(b.price)
+    const priceA = Number(a.price.substring(1))
+    const priceB = Number(b.price.substring(1))
     if (priceA < 0) {
         return 1
     } else if (priceB < 0) {
@@ -263,13 +263,12 @@ async function getBestBuyGpu(url: string): Promise<GpuInfo[]> {
 
         const priceString = priceBlock.find('.priceView-hero-price.priceView-customer-price')
             .children('span[aria-hidden]').text()
-        const price = priceString.substring(1).replace(/,/g, '')
         const itemStatus = priceBlock.find('.add-to-cart-button').text()
 
         const gpu: GpuInfo = {
             name: name,
             address: address,
-            price: price,
+            price: createPrice(priceString),
             inStock: itemStatus === 'Add to Cart' || itemStatus === 'Check Stores'
         }
         gpus.push(gpu)
@@ -292,9 +291,8 @@ async function getBhPhotoGpu(url: string): Promise<GpuInfo[]> {
         const address = addressPrefix + link.attr('href')
 
         const priceDollars = priceBlock.find('.container_14EdEmSSsYmuetz3imKuAI')
-            .children('span').text().substring(1) // first char is $
+            .children('span').text() // first char is $
         const priceCents = priceBlock.find('.sup_16V7uLfWDd9kJVKs5bfwSx').text()
-        const price = priceDollars + '.' + priceCents
         priceBlock.filter('.notifyBtn_3xVC8mda-LbSgYs4mjp5NS buttonTheme_1mBX7Kocn_Oq_wzW6ri7s5 tertiary_3fLAKfyXQQMUL4ZSxgfZGx')
         const itemStatusButton = priceBlock.find('.container_2SrtUKcYWGHRxMYB3ks_0q')
             .find('button')
@@ -303,7 +301,7 @@ async function getBhPhotoGpu(url: string): Promise<GpuInfo[]> {
         const gpu: GpuInfo = {
             name: name,
             address: address,
-            price: price,
+            price: createPrice(priceDollars, priceCents),
             inStock: inStock
         }
         gpus.push(gpu)
@@ -330,7 +328,6 @@ async function getSamsClubGpu(url: string, keyword: string): Promise<GpuInfo[]> 
 
         const priceDollars = priceBlock.find('.Price-characteristic').text()
         const priceCents = priceBlock.find('.Price-mantissa').text()
-        const price = priceDollars + '.' + priceCents
         const itemStatusButton = priceBlock.find('.sc-btn.sc-btn-primary.sc-btn-block.sc-pc-action-button.sc-pc-add-to-cart')
         const itemStatus = itemStatusButton.attr('disabled')
         // instock if disabled attr doesn't exist (either undefined or false)
@@ -339,7 +336,7 @@ async function getSamsClubGpu(url: string, keyword: string): Promise<GpuInfo[]> 
         const gpu: GpuInfo = {
             name: name,
             address: address,
-            price: price,
+            price: createPrice(priceDollars, priceCents),
             inStock: inStock
         }
 
@@ -361,20 +358,20 @@ async function getNeweggGpu(url: string): Promise<GpuInfo[]> {
         const address = infoBlock.children('a').attr('href')
         const inStockText = priceBlock.find('.btn.btn-primary.btn-mini').text()
         const inStock = (inStockText === 'Add to cart ')
-        let price: string
+        let priceDollars: string
+        let priceCents: string
         if (inStock) {
             // TODO: All pricing stuff should be internationalized
-            const priceDollars = priceBlock.find('.price-current').children('strong').text().replace(/,/g, '')
-            const priceCents = priceBlock.find('.price-current').children('sup').text()
-            price = priceDollars + priceCents
+            priceDollars = priceBlock.find('.price-current').children('strong').text()
+            priceCents = priceBlock.find('.price-current').children('sup').text()
         } else {
-            price = '-1'
+            priceDollars = '-1'
+            priceCents = '0'
         }
-
         const gpu: GpuInfo = {
             name: name,
             address: address,
-            price: price,
+            price: createPrice(priceDollars, priceCents),
             inStock: inStock
         }
 
@@ -382,4 +379,21 @@ async function getNeweggGpu(url: string): Promise<GpuInfo[]> {
     })
 
     return gpus
+}
+
+/**
+ * Convert a set of dollars and cents into a single price string
+ * @param dollars Number of dollars in price. Can optionally include cents
+ * @param cents Number of cents in price. Must be < 100
+ */
+function createPrice(dollars: number | string, cents?: number | string): string {
+    // TODO: Eventually this should be replaced with some actually decent localization
+    // For now, remove commas and dollar signs
+    const dollarsStringSanitized = (<string> dollars).replace('$', '').replace(',', '')
+    const dollarsNum = Number(dollarsStringSanitized)
+    cents = cents || 0
+    const priceNum = dollarsNum + (Number(cents) / 100)
+
+    const price = '$' + Number(priceNum).toFixed(2)
+    return price
 }
