@@ -15,8 +15,3 @@ export interface GpuStock {
   amdRx6800Xt: GpuInfo[],
   amdRx6900Xt: GpuInfo[],
 }
-
-export interface GpuStockReturn {
-  gpus: GpuStock
-  lastUpdated: string
-}

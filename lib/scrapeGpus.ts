@@ -2,39 +2,49 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 import { GpuInfo, GpuStock } from '../interfaces/interfaces'
 
-export async function getHomepageGpus(): Promise<GpuStock> {
-    const allGpus = await getGpus()
-    sortGpus(allGpus)
-    const availableGpus = getGpusInStock(allGpus)
+let gpuStock: GpuStock = {
+    nvidia3060Ti: [],
+    nvidia3070: [],
+    nvidia3080: [],
+    nvidia3090: [],
+    nvidiaTitanRtx: [],
+    amdRx6800: [],
+    amdRx6800Xt: [],
+    amdRx6900Xt: []
+}
 
-    const gpuStock: GpuStock = {
+export function getHomepageGpus(): GpuStock {
+    const sortedGpus = sortGpus(gpuStock)
+    const availableGpus = getGpusInStock(sortedGpus)
+
+    const homepageGpus: GpuStock = {
         nvidia3060Ti: availableGpus.nvidia3060Ti.length > 0 ?
             [availableGpus.nvidia3060Ti[0]] :
-            [allGpus.nvidia3060Ti[0]],
+            [sortedGpus.nvidia3060Ti[0]],
         nvidia3070: availableGpus.nvidia3070.length > 0 ?
             [availableGpus.nvidia3070[0]] :
-            [allGpus.nvidia3070[0]],
+            [sortedGpus.nvidia3070[0]],
         nvidia3080: availableGpus.nvidia3080.length > 0 ?
             [availableGpus.nvidia3080[0]] :
-            [allGpus.nvidia3080[0]],
+            [sortedGpus.nvidia3080[0]],
         nvidia3090: availableGpus.nvidia3090.length > 0 ?
             [availableGpus.nvidia3090[0]] :
-            [allGpus.nvidia3090[0]],
+            [sortedGpus.nvidia3090[0]],
         nvidiaTitanRtx: availableGpus.nvidiaTitanRtx.length > 0 ?
             [availableGpus.nvidiaTitanRtx[0]] :
-            [allGpus.nvidiaTitanRtx[0]],
+            [sortedGpus.nvidiaTitanRtx[0]],
         amdRx6800: availableGpus.amdRx6800.length > 0 ?
             [availableGpus.amdRx6800[0]] :
-            [allGpus.amdRx6800[0]],
+            [sortedGpus.amdRx6800[0]],
         amdRx6800Xt: availableGpus.amdRx6800Xt.length > 0 ?
             [availableGpus.amdRx6800Xt[0]] :
-            [allGpus.amdRx6800Xt[0]],
+            [sortedGpus.amdRx6800Xt[0]],
         amdRx6900Xt: availableGpus.amdRx6900Xt.length > 0 ?
             [availableGpus.amdRx6900Xt[0]] :
-            [allGpus.amdRx6900Xt[0]],
+            [sortedGpus.amdRx6900Xt[0]],
     }
 
-    return gpuStock
+    return homepageGpus
 }
 
 /**
@@ -57,34 +67,52 @@ export function getGpusInStock(gpus: GpuStock): GpuStock {
 }
 
 /**
- * Get a list of Gpus
+ * Updates the list of gpus sold by vendors
  */
-export async function getGpus(): Promise<GpuStock> {
+export async function updateGpus(): Promise<GpuStock> {
     let gpus = await getBestBuyGpus()
     append(gpus, await getBhPhotoGpus())
     append(gpus, await getSamsClubGpus())
     append(gpus, await getNeweggGpus())
 
-    return gpus
+    gpuStock = gpus
+    return gpuStock
+}
+
+/**
+ * Gets the list of gpus sold by vendors
+ */
+export function getGpus(): GpuStock {
+    return gpuStock
+}
+
+/**
+ * Gets the list of a specific gpu type sold by vendors
+ * @param gpuType The specific type of Gpus to return
+ */
+export function getGpusOfType(gpuType: string): GpuInfo[] {
+    return gpuStock[gpuType]
 }
 
 /**
  * Sorts a set of gpus by ascending price
- * @param gpus The set of gpus to sort. This variable is modified to contain the sorted
- * results
+ * @param gpus The set of gpus to sort. This variable is not modified by sortGpus()
  * @returns the set of gpus, sorted by ascending price
  */
 export function sortGpus(gpus: GpuStock): GpuStock {
-    gpus.nvidia3060Ti = gpus.nvidia3060Ti.sort(compareGpuPrices)
-    gpus.nvidia3070 = gpus.nvidia3070.sort(compareGpuPrices)
-    gpus.nvidia3080 = gpus.nvidia3080.sort(compareGpuPrices)
-    gpus.nvidia3090 = gpus.nvidia3090.sort(compareGpuPrices)
-    gpus.nvidiaTitanRtx = gpus.nvidiaTitanRtx.sort(compareGpuPrices)
-    gpus.amdRx6800 = gpus.amdRx6800.sort(compareGpuPrices)
-    gpus.amdRx6800Xt = gpus.amdRx6800Xt.sort(compareGpuPrices)
-    gpus.amdRx6900Xt = gpus.amdRx6900Xt.sort(compareGpuPrices)
 
-    return gpus
+    const gpusSorted: GpuStock = {
+        nvidia3060Ti: gpus.nvidia3060Ti.sort(compareGpuPrices),
+        nvidia3070: gpus.nvidia3070.sort(compareGpuPrices),
+        nvidia3080: gpus.nvidia3080.sort(compareGpuPrices),
+        nvidia3090: gpus.nvidia3090.sort(compareGpuPrices),
+        nvidiaTitanRtx: gpus.nvidiaTitanRtx.sort(compareGpuPrices),
+        amdRx6800: gpus.amdRx6800.sort(compareGpuPrices),
+        amdRx6800Xt: gpus.amdRx6800Xt.sort(compareGpuPrices),
+        amdRx6900Xt: gpus.amdRx6900Xt.sort(compareGpuPrices)
+    }
+
+    return gpusSorted
 }
 
 /**
