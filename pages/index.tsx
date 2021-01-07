@@ -3,7 +3,6 @@ import React from 'react'
 import { useTable } from 'react-table'
 import { InferGetStaticPropsType } from 'next'
 import { getHomepageGpus, updateGpus } from '../lib/scrapeGpus'
-import Link from 'next/link'
 
 export async function getStaticProps() {
   // This is the only updater of Gpus. Every other place will just access it
