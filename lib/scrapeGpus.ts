@@ -70,6 +70,7 @@ export function getGpusInStock(gpus: GpuStock): GpuStock {
  * Updates the list of gpus sold by vendors
  */
 export async function updateGpus(): Promise<GpuStock> {
+    console.log("UPDATING GPUS")
     let gpus = await getBestBuyGpus()
     append(gpus, await getBhPhotoGpus())
     append(gpus, await getSamsClubGpus())
@@ -293,6 +294,7 @@ async function getBestBuyGpu(url: string): Promise<GpuInfo[]> {
         const priceScript = priceBlock.find('.sku-list-item-price .None script').last().toString()
         const priceStringIndex = priceScript.search('currentPrice')
         let priceString = priceScript.substring(priceStringIndex)
+        // currentPrice\":999.99 -> 999.99
         priceString = priceString.substring(15, priceString.indexOf(','))
 
         const gpu: GpuInfo = {

@@ -1,32 +1,32 @@
 import React, { useMemo } from 'react'
-import { getGpus, getGpusOfType } from "../lib/scrapeGpus"
-import styles from '../styles/Home.module.css'
+import { getGpus, getGpusInStock, getGpusOfType } from "../lib/scrapeGpus"
+import styles from '../styles/Item.module.css'
 import { InferGetStaticPropsType } from 'next'
 import { useTable } from 'react-table'
 
 export async function getStaticProps({ params }) {
-    const gpus = getGpusOfType(params.gpu)
-    return {
-        props: {
-            gpus
-        },
-        // Next.js will attempt to re-generate the page:
-        // - When a request comes in
-        // - At most once every 30 seconds
-        revalidate: 30,
-    }
+  const gpus = getGpusOfType(params.gpu)
+  return {
+    props: {
+      gpus
+    },
+    // Next.js will attempt to re-generate the page:
+    // - When a request comes in
+    // - At most once every 30 seconds
+    revalidate: 30,
+  }
 }
 
 export async function getStaticPaths() {
-    const gpuTypes = Object.keys(getGpus())
-    const paths = gpuTypes.map(gpuType => ({
-        params: {gpu: gpuType},
-    }))
-    
-    return {
-        paths,
-        fallback: false
-    }
+  const gpuTypes = Object.keys(getGpus())
+  const paths = gpuTypes.map(gpuType => ({
+    params: { gpu: gpuType },
+  }))
+
+  return {
+    paths,
+    fallback: false
+  }
 }
 
 export default function Gpu({ gpus }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -39,10 +39,12 @@ export default function Gpu({ gpus }: InferGetStaticPropsType<typeof getStaticPr
       {
         Header: 'Availability',
         accessor: 'inStock',
+        Cell: data => data.value ? "Available" : "Unavailable"
       },
       {
         Header: 'Price',
         accessor: 'price',
+        Cell: data => data.value == '$-1.00' ? "" : data.value
       },
       {
         Header: 'Link',
@@ -56,36 +58,27 @@ export default function Gpu({ gpus }: InferGetStaticPropsType<typeof getStaticPr
 
   const data = useMemo(() => JSON.parse(JSON.stringify(gpus)), [])
 
-  // const data = React.useMemo(
-  //   () => 
-  //   gpus.forEach((gpuInfo) => { 
-  //     prodName: gpuInfo.name, 
-  //     avail: gpuInfo.inStock, 
-  //     price: gpuInfo.price, 
-  //     link: gpuInfo.address } ),
-  //   []
-  // )
-      
   return (
-      <Table columns={columns} data={data} />
+    <Table columns={columns} data={data} />
   )
 }
 
 function Table({ columns, data }) {
-    // Use the state and functions returned from useTable to build your UI
-    const {
-      getTableProps,
-      getTableBodyProps,
-      headerGroups,
-      rows,
-      prepareRow,
-    } = useTable({
-      columns,
-      data,
-    })
-  
-    // Render the UI for your table
-    return (
+  // Use the state and functions returned from useTable to build your UI
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({
+    columns,
+    data,
+  })
+
+  // Render the UI for your table
+  return (
+    <div className={styles.gpuTable}>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map(headerGroup => (
@@ -109,5 +102,6 @@ function Table({ columns, data }) {
           })}
         </tbody>
       </table>
-    )
-  }
+    </div>
+  )
+}

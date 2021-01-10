@@ -1,0 +1,38 @@
+.gpuTable table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #eaeaea;
+}
+
+.gpuTable thead tr {
+  background-color: #009879;
+  border: 1px solid #009879;
+  color: #ffffff;
+  text-align: left;
+}
+
+.gpuTable td, .gpuTable th {
+  padding: 10px 10px;
+}
+
+.gpuTable tbody tr {
+  border-bottom: 1px solid #eaeaea;
+}
+
+.gpuTable tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+a.button {
+  padding: 0.35em .7em;
+  border: 0.1em solid #c0c0c0;
+  margin: 0 0.3em 0.3em 0;
+  border-radius: 0.3em;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+a.button:hover {
+  color: #000000;
+  background-color: #c0c0c0;
+}
