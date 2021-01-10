@@ -289,9 +289,11 @@ async function getBestBuyGpu(url: string): Promise<GpuInfo[]> {
         const addressPrefix = 'https://www.bestbuy.com'
         const address = addressPrefix + link.attr('href')
 
-        const priceString = priceBlock.find('.priceView-hero-price.priceView-customer-price')
-            .children('span[aria-hidden]').text()
         const itemStatus = priceBlock.find('.add-to-cart-button').text()
+        const priceScript = priceBlock.find('.sku-list-item-price .None script').last().toString()
+        const priceStringIndex = priceScript.search('currentPrice')
+        let priceString = priceScript.substring(priceStringIndex)
+        priceString = priceString.substring(15, priceString.indexOf(','))
 
         const gpu: GpuInfo = {
             name: name,
@@ -417,7 +419,7 @@ async function getNeweggGpu(url: string): Promise<GpuInfo[]> {
 function createPrice(dollars: number | string, cents?: number | string): string {
     // TODO: Eventually this should be replaced with some actually decent localization
     // For now, remove commas and dollar signs
-    const dollarsStringSanitized = (<string> dollars).replace('$', '').replace(',', '')
+    const dollarsStringSanitized = dollars.toString().replace('$', '').replace(',', '')
     const dollarsNum = Number(dollarsStringSanitized)
     cents = cents || 0
     const priceNum = dollarsNum + (Number(cents) / 100)
